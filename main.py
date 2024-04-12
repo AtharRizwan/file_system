@@ -125,6 +125,16 @@ class FileSystem:
         else:
             self.current_dir = self.current_dir.parent
             self.dir_string = self.dir_string[:self.dir_string.rfind("/", 0, len(self.dir_string) - 1) + 1]
+    
+    # Move file to previous directory
+    def move_back(self, file_name):
+        if file_name in self.current_dir.children and isinstance(self.current_dir.children[file_name], File):
+            parent_dir = self.current_dir.parent
+            parent_dir.children[file_name] = self.current_dir.children[file_name]
+            self.current_dir.children.pop(file_name)
+        else:
+            print("File not found")
+ 
 
     # Delete a file
     def delete_file(self, file_name):
@@ -132,7 +142,14 @@ class FileSystem:
             self.current_dir.children.pop(file_name)
         else:
             print("File not found")
-
+            
+    # Delete a directory
+    def delete_dir(self, dir_name):
+        if dir_name in self.current_dir.children and isinstance(self.current_dir.children[dir_name], Directory):
+            self.current_dir.children.pop(dir_name)
+        else:
+            print("Directory not found")
+            
     # Move a file
     def move_file(self, file_name, new_dir):
         if file_name in self.current_dir.children and isinstance(self.current_dir.children[file_name], File):
@@ -175,9 +192,11 @@ if __name__ == "__main__":
         print("3. Change Directory")
         print("4. Go Back")
         print("5. Delete File")
-        print("6. Move File")
-        print("7. Open File")
-        print("8. Exit")
+        print("6. Delete Directory")
+        print("7. Move File")
+        print("8. Move File to Parent Direcctory")
+        print("9. Open File")
+        print("10. Exit")
         choice = input("Enter choice: ")
         # If choice is a number
         if choice.isdigit():
@@ -199,10 +218,16 @@ if __name__ == "__main__":
             file_name = input("Enter file name: ")
             fs.delete_file(file_name)
         elif choice == 6:
+            dir_name = input("Enter directory name: ")
+            fs.delete_dir(dir_name)
+        elif choice == 7:
             file_name = input("Enter file name: ")
             new_dir = input("Enter new directory: ")
             fs.move_file(file_name, new_dir)
-        elif choice == 7:
+        elif choice == 8:
+            file_name = input("Enter file name: ")
+            fs.move_back(file_name)
+        elif choice == 9:
             file_name = input("Enter file name: ")
             mode = input("Enter mode(r,w,a): ")
             file = fs.open_file(file_name, mode)
@@ -246,7 +271,7 @@ if __name__ == "__main__":
                     input("Press Enter to continue...")
             else:
                 print("Invalid file or mode")
-        elif choice == 8:
+        elif choice == 10:
             break
         else:
             print("Invalid choice")
