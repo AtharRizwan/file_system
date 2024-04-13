@@ -26,25 +26,23 @@ class Directory:
         self.parent = parent
 
 # Create a class that manages read and write operations on files
-# Create a class that manages read and write operations on files
 class OpenFile:
-    # Initialize the file with name and mode
+    # Initialize the object with file and mode
     def __init__(self, file, mode):
         self.file = file
         self.mode = mode
         self.pos = None
+        # Append mode continues from current position
         if self.mode == "a":
             self.pos = len(self.file.content)
+        # Write mode starts from the beginning and overrites the content
         elif self.mode == "w":
             self.file.content = ""
             self.pos = 0
 
     # Write to the file
     def write(self, content):
-        if self.mode == "w":
-            self.file.content += content
-            self.pos += len(content)
-        elif self.mode == "a":
+        if self.mode == "w" or self.mode == "a":
             self.file.content += content
             self.pos += len(content)
         else:
@@ -55,12 +53,15 @@ class OpenFile:
         if self.mode == "w" or self.mode == "a":
             if position < 0:
                 print("Invalid position")
+                return
             elif position > len(self.file.content):
                 self.file.content += content
             elif len(self.file.content) < position + len(content):
                 self.file.content = self.file.content[:position] + content
             else:
                 self.file.content = self.file.content[:position] + content + self.file.content[position + len(content):]
+            # Update position
+            self.pos = len(self.file.content)
         else:
             print("File not open for writing")
 
@@ -89,6 +90,7 @@ class FileSystem:
     def __init__(self):
         self.root = Directory("/", None)
         self.current_dir = self.root
+        # Directory string to print the current directory
         self.dir_string = "/"
     
     # Create a new file in the current directory
@@ -103,7 +105,6 @@ class FileSystem:
 
     # Change the current directory to the specified directory
     def change_directory(self, dir_name):
-        # children list is a dictionary
         if dir_name in self.current_dir.children and isinstance(self.current_dir.children[dir_name], Directory):
             self.current_dir = self.current_dir.children[dir_name]
             self.dir_string += dir_name + "/"
@@ -128,6 +129,9 @@ class FileSystem:
     
     # Move file to previous directory
     def move_back(self, file_name):
+        if self.current_dir == self.root:
+            print("Already at root directory")
+            return
         if file_name in self.current_dir.children and isinstance(self.current_dir.children[file_name], File):
             parent_dir = self.current_dir.parent
             parent_dir.children[file_name] = self.current_dir.children[file_name]
@@ -175,13 +179,20 @@ class FileSystem:
         else:
             print("Invalid file object")
     
+    # Print the current directory as a string
     def print_dir(self):
         print("Current Dir: " + self.dir_string)
     
 # The main code
 if __name__ == "__main__":
-    fs = FileSystem()
+    # Load existing data
+    if os.path.exists("sample.dat"):
+        with open("sample.dat", "rb") as f:
+            fs = pickle.load(f)
+    else:
+        fs = FileSystem()
     while (True): 
+        # User menu
         clear_screen()
         fs.print_dir()
         print()
@@ -194,7 +205,7 @@ if __name__ == "__main__":
         print("5. Delete File")
         print("6. Delete Directory")
         print("7. Move File")
-        print("8. Move File to Parent Direcctory")
+        print("8. Move File to Parent Directory")
         print("9. Open File")
         print("10. Exit")
         choice = input("Enter choice: ")
@@ -232,6 +243,7 @@ if __name__ == "__main__":
             mode = input("Enter mode(r,w,a): ")
             file = fs.open_file(file_name, mode)
             if file and mode in ["r", "w", "a"]:
+                # File is now open until closed
                 while True:
                     clear_screen()
                     if file.mode == "r":
@@ -272,6 +284,9 @@ if __name__ == "__main__":
             else:
                 print("Invalid file or mode")
         elif choice == 10:
+            # Save data before exiting
+            with open("sample.dat", "wb") as f:
+                pickle.dump(fs, f)
             break
         else:
             print("Invalid choice")
