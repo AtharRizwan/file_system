@@ -2,11 +2,12 @@
 __pycache__/
 *.py[cod]
 
-# Saved file system state (pickled, machine-local)
+# Saved file system state (machine-local)
+filesystem.json
+*.tmp
+*.corrupt
+# Old pickle saves from before the JSON format
 *.dat
-
-# Jupyter
-.ipynb_checkpoints/
 
 # Editors and OS
 .vscode/
