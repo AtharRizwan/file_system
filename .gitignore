@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Saved file system state (pickled, machine-local)
+*.dat
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
